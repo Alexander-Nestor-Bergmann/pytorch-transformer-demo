@@ -1,4 +1,4 @@
-# PyTorch Transformer Tutorial: Attention Is All You Need
+# PyTorch Transformer Tutorial: Implementing 'Attention Is All You Need'
 
 
 This project began as my own attempt to implement and understand the Transformer model. I have converted my notes and code into this public tutorial, aiming to provide a clear, well-documented, and **intuitive** implementation of the Transformer model. The implementation closely follows the seminal paper ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) by Vaswani et al. (2017), and is intended to complement the existing wealth of tutorials.
@@ -98,7 +98,7 @@ class TokenEmbedding(nn.Module):
 
 \
 ![position_encoding.webp](images/position_encoding.webp)
-*Figure: Visualization of combining embeddings with positional encodings. A common encoding model is, for example, the trigonometric transforms above. (Image Credit: Xuer Chen; [Link](https://medium.com/@xuer.chen.human/llm-study-notes-positional-encoding-0639a1002ec0))*
+*Figure: Visualisation of combining embeddings with positional encodings. A common encoding model is, for example, the trigonometric transforms above. (Image Credit: Xuer Chen; [Link](https://medium.com/@xuer.chen.human/llm-study-notes-positional-encoding-0639a1002ec0))*
 
 Self-attention processes all words simultaneously, losing the inherent sequence order. "The cat sat on the mat" differs from "The mat sat on the cat". We need to explicitly provide positional information.
 
@@ -177,7 +177,7 @@ class PositionalEncoding(nn.Module):
 # Code structure from src/transformer/embedding.py
 class TransformerEmbedding(nn.Module):
     def __init__(self, vocab_size: int, d_model: int, max_len: int = 5000, dropout: float = 0.1):
-        # ... initialization of token_embedding and positional_encoding ...
+        # ... initialisation of token_embedding and positional_encoding ...
         super().__init__()
         self.token_embedding = TokenEmbedding(vocab_size, d_model)
         self.positional_encoding = PositionalEncoding(d_model, max_len, dropout)
@@ -198,13 +198,13 @@ The output of this stage is a sequence of vectors, where each vector represents 
 
 The core mechanism of the Transformer is **attention**, specifically **Scaled Dot-Product Attention** and its multi-headed variant. This allows the model to weigh the importance of different words when processing a particular word.
 
-![transformer_self-attention_visualization_2.png](images/transformer_self-attention_visualization_2.png)
+![transformer_self-attention_visualisation_2.png](images/transformer_self-attention_visualisation_2.png)
 *Figure: Visualisation of attention focus for the word 'it'. (Image Credit: Jay Alammar; [Link](https://jalammar.github.io/illustrated-transformer))*
 
 
 ### 1. Scaled Dot-Product Attention
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Imagine you're making a fruit smoothie. You have a *recipe query* (what kind of smoothie do I want? Maybe "something sweet and red"). You look at your available *fruits* (apples, bananas, strawberries, lemons). Each fruit has *keys* (descriptions like "red", "sweet", "sour", "yellow") and *values* (the actual fruit substance).
 
@@ -239,7 +239,7 @@ Where:
 
 ### 2. Multi-Head Attention
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Instead of performing attention once with large Q, K, V vectors, Multi-Head Attention splits them into smaller pieces ("heads").
 
@@ -289,7 +289,7 @@ def scaled_dot_product_attention(
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model: int, h: int, dropout: float = 0.1):
         super().__init__()
-        # ... initialization of linear layers (w_q, w_k, w_v, w_o) ...
+        # ... initialisation of linear layers (w_q, w_k, w_v, w_o) ...
         self.d_model = d_model
         self.h = h
         self.d_k = d_model // h
@@ -364,7 +364,7 @@ attention_weights = torch.softmax(scores, dim=-1)
 
 Inside each Encoder and Decoder layer, after the main operations (self-attention or feed-forward network), there are two standard sub-steps: a **residual connection** followed by **layer normalisation**.
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Imagine building a complex tower with LEGO blocks. Sometimes, adding a new fancy section (like our attention mechanism) might accidentally mess up the stability built by the previous sections. A **residual connection** is like keeping a direct support beam from the *input* of the new section straight to its *output*. So, if the new section isn't helpful or even makes things worse initially, the tower still has the original support from before. It makes it easier to build very deep towers without them collapsing during construction (training).
 
@@ -388,7 +388,7 @@ We will use the standard `torch.nn.LayerNorm` module provided by PyTorch for thi
 
 The final essential component within each Encoder and Decoder layer is the Position-wise Feed-Forward Network (FFN).
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Think of the attention mechanism as gathering relevant context for each word. The FFN is like a small, independent processing station *for each word* separately. After gathering context (attention), each word goes through this station to have its representation further refined and processed based on the context it just received. It's the same station (same set of weights) for every word, but each word passes through it individually (position-wise).
 
@@ -498,7 +498,7 @@ The Encoder processes the input sequence to generate contextual representations.
 
 ### 1. Encoder Layer (`EncoderLayer`)
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Think of an Encoder Layer as a "contextual understanding station" for the input sentence. When a word's embedding arrives:
 1.  **Self-Attention:** It first looks around at *all* other words in the *same* sentence ("Who else is here and how relevant are they to me?"). It uses the Multi-Head Attention mechanism we discussed earlier to gather context from the input sequence itself.
@@ -576,7 +576,7 @@ The Decoder's role is to generate the output sequence (e.g., the translated sent
 
 ### 1. Decoder Layer (`DecoderLayer`)
 
-#### Intuition (ELI5)
+#### Intuition 
 
 Imagine the Decoder is writing the translated sentence, word by word. For each word it's about to write:
 1.  **Masked Self-Attention ("What have I written so far?"):** It first looks *only* at the words it has already written in the target sentence ("I need context from the previous target words, but I can't peek at the future!"). It uses Masked Multi-Head Attention with the look-ahead mask.
@@ -656,7 +656,7 @@ The output of the `Decoder` stack is almost ready. It typically needs one more s
 
 After the Decoder stack produces its output (a sequence of vectors of size `d_model`), we need to convert these vectors into actual predicted words. This is done using a final linear layer followed by a softmax function.
 
-### Intuition (ELI5)
+### Intuition 
 
 The Decoder has produced a rich vector representation for each potential next word. Now, we need to translate this internal representation back into probabilities for *every single word* in our vocabulary. Imagine the final vector holds clues like "it's a noun, it's related to royalty, it's male". The final linear layer (sometimes called the "generator" because it generates the raw scores, or logits, for the next token prediction) acts like a decoder ring, mapping this clue vector onto a score for each word ("king": high score, "queen": medium score, "apple": very low score). The softmax then turns these scores into percentages: "king": 80%, "queen": 15%, "apple": 0.01%, etc., telling us the model's confidence for each possible next word.
 
