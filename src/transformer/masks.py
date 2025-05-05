@@ -42,7 +42,8 @@ def create_subsequent_mask(
     # Create an upper triangular matrix of ones
     mask = torch.triu(torch.ones(size, size, device=device), diagonal=1)
     # Convert to boolean: True where it's 1 (upper triangle), False where it's 0
-    return mask.bool().unsqueeze(0)  # shape: (1, 1, size, size) -> broadcastable
+    # Unsqueeze twice to get shape (1, 1, size, size) for multi-head compatibility
+    return mask.bool().unsqueeze(0).unsqueeze(1)
 
 
 # Example Usage (for understanding):

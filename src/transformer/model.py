@@ -61,9 +61,7 @@ class Transformer(nn.Module):
         # Shared Layer Components (we create templates and copy them)
         attn = MultiHeadAttention(d_model, h, dropout)
         ff = PositionwiseFeedForward(d_model, d_ff, dropout)
-        encoder_layer = EncoderLayer(
-            d_model, copy.deepcopy(attn), copy.deepcopy(ff), dropout
-        )
+        encoder_layer = EncoderLayer(d_model=d_model, h=h, d_ff=d_ff, dropout=dropout)
         decoder_layer = DecoderLayer(
             d_model,
             h,
@@ -139,16 +137,23 @@ class Transformer(nn.Module):
         memory_mask = src_mask  # Shape: [batch_size, 1, 1, src_seq_len]
 
         # Process source sequence
-        src_emb = self.positional_encoding(self.src_tok_emb(src).transpose(0, 1))
-        memory = self.encoder(src_emb, src_mask)
+        # Apply positional encoding (expects seq, batch, dim)
+        # Transpose back to (batch, seq, dim) for encoder
+        src_emb_pe = self.positional_encoding(self.src_tok_emb(src).transpose(0, 1))
+        memory = self.encoder(src_emb_pe.transpose(0, 1), src_mask)
 
         # Process target sequence
-        tgt_emb = self.positional_encoding(self.tgt_tok_emb(tgt).transpose(0, 1))
-        decoder_output = self.decoder(tgt_emb, memory, tgt_mask, memory_mask)
+        # Apply positional encoding (expects seq, batch, dim)
+        # Transpose back to (batch, seq, dim) for decoder
+        tgt_emb_pe = self.positional_encoding(self.tgt_tok_emb(tgt).transpose(0, 1))
+        decoder_output = self.decoder(
+            tgt_emb_pe.transpose(0, 1), memory, tgt_mask, memory_mask
+        )
 
-        # Generate output logits
+        # Generate output logits (already batch, seq, dim)
         logits = self.generator(decoder_output)
-        return logits.transpose(0, 1)
+        # Remove final transpose as output is already [batch, seq, vocab]
+        return logits
 
     def encode(self, src: Tensor, src_mask: Optional[Tensor] = None) -> Tensor:
         """Encodes the source sequence.

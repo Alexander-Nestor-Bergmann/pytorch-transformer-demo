@@ -30,9 +30,7 @@ def test_token_embedding_output_shape():
         D_MODEL,
     ), f"Expected shape {(SEQ_LEN, BATCH_SIZE, D_MODEL)}, but got {output.shape}"
 
-    # Check scaling factor (magnitude)
-    # Get the norm of the embedding for the first token
-    # Compare it to the norm of the raw embedding vector scaled
+    # Check scaling factor
     raw_embedding_norm = torch.norm(embedding.embedding.weight[tokens[0, 0]], p=2)
     expected_norm = raw_embedding_norm * math.sqrt(D_MODEL)
     output_norm = torch.norm(output[0, 0], p=2)
@@ -54,32 +52,29 @@ def test_positional_encoding_output_shape_and_values():
         D_MODEL,
     ), f"Expected shape {(SEQ_LEN, BATCH_SIZE, D_MODEL)}, but got {output.shape}"
 
-    # Check if positional encoding was added (output should not be all zeros)
+    # Check if positional encoding was added
     assert not torch.all(output == 0.0), "Positional encoding was not added."
 
-    # Check if dropout is applied when p > 0
+    # Check dropout application
     pos_encoding_dropout = PositionalEncoding(
         d_model=D_MODEL, max_len=MAX_LEN, dropout=0.9  # High dropout
     )
     output_dropout = pos_encoding_dropout(input_tensor)
-    # With high dropout, some values should likely be zeroed out
-    # Note: This is a probabilistic check, might fail rarely
+    # Check if some values were zeroed out by dropout
     assert torch.sum(output_dropout == 0.0) > 0, "Dropout did not seem to be applied."
 
 
 def test_positional_encoding_uniqueness():
     """Tests if positional encodings are unique across sequence positions."""
     pos_encoding = PositionalEncoding(d_model=D_MODEL, max_len=MAX_LEN, dropout=0.0)
-    # Get PE values directly (requires access, or use forward on zeros)
     pe_values = pos_encoding.pe  # Shape: [max_len, 1, d_model]
     assert pe_values.shape[0] == MAX_LEN
     assert pe_values.shape[2] == D_MODEL
 
-    # Check that PE for position 0 is different from PE for position 1
+    # Check uniqueness between adjacent positions
     assert not torch.allclose(
         pe_values[0], pe_values[1]
     ), "Positional encodings for position 0 and 1 are the same."
-    # Check that PE for position 1 is different from PE for position 2
     assert not torch.allclose(
         pe_values[1], pe_values[2]
     ), "Positional encodings for position 1 and 2 are the same."
@@ -93,7 +88,6 @@ def test_transformer_embedding_output_shape():
         max_len=MAX_LEN,
         dropout=DROPOUT,
     )
-    # Input tokens shape: (seq_len, batch_size)
     tokens = torch.randint(0, VOCAB_SIZE, (SEQ_LEN, BATCH_SIZE))
     output = transformer_embedding(tokens)
 
