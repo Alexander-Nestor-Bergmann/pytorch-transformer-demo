@@ -1,5 +1,6 @@
 # PyTorch Transformer Tutorial: Implementing 'Attention Is All You Need'
 
+[![Tests and Coverage](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/actions/workflows/ci.yml)
 [![Coverage badge](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/tree/python-coverage-comment-action-data)
 
 
