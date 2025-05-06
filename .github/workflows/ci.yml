@@ -26,11 +26,14 @@ jobs:
     - name: Install uv
       run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
+    - name: Add uv to PATH
+      run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
     - name: Install dependencies using uv
-      run: ~/.cargo/bin/uv pip install --system --quiet .[test]
+      run: uv pip install --system --quiet .[test]
 
     - name: Run tests with coverage
-      run: ~/.cargo/bin/uv run coverage run -m pytest
+      run: uv run coverage run -m pytest
 
     - name: Coverage comment
       id: coverage_comment
