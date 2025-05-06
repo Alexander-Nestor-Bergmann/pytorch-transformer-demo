@@ -1,5 +1,7 @@
 # PyTorch Transformer Tutorial: Implementing 'Attention Is All You Need'
 
+[![Coverage badge](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/Alexander-Nestor-Bergmann/pytorch-transformer-demo/tree/python-coverage-comment-action-data)
+
 
 This project began as my own attempt to implement and understand the Transformer model. I have converted my notes and code into this public tutorial, aiming to provide a clear, well-documented, and **intuitive** implementation of the Transformer model. The implementation closely follows the seminal paper ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) by Vaswani et al. (2017), and is intended to complement the existing wealth of tutorials.
 
