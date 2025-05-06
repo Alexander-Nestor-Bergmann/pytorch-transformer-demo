@@ -31,6 +31,7 @@ dependencies = [
 # Dependencies for development (testing, linting, formatting)
 dev = [
     "pytest",
+    "coverage",
     "black",
     "ruff",
 ]
@@ -93,3 +94,7 @@ pythonpath = [
 testpaths = [
     "tests",
 ]
+
+[tool.coverage.run]
+source = ["src"]
+relative_files = true
